@@ -1,0 +1,27 @@
+{
+  "name": "snake-game",
+  "version": "1.0.0",
+  "description": "A simple Snake game built with Vue 3",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "element-plus": "^2.10.7",
+    "vue": "^3.0.0",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.2.2"
+  },
+  "keywords": [
+    "vue",
+    "snake",
+    "game"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
