@@ -12,10 +12,6 @@
         <el-menu-item index="/articles">文章</el-menu-item>
         <el-menu-item index="/websites">网站</el-menu-item>
       </el-menu>
-      
-
-      <el-button type="primary" @click="handleLogin">登录</el-button>
-      <el-button type="primary" @click="handleRegister">注册</el-button>
     </el-header>
 
     <!-- 主要内容区域 -->
