@@ -61,7 +61,8 @@ const handleSelect = (key) => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
 }
 
 .header {
@@ -69,6 +70,7 @@ const handleSelect = (key) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   background-color: #fff;
+  margin: 0;
 }
 
 .navbar {
@@ -81,6 +83,7 @@ const handleSelect = (key) => {
   flex: 1;
   padding: 0;
   background-color: transparent;
+  margin: 0;
 }
 
 .content-wrapper {

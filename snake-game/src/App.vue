@@ -16,6 +16,7 @@ defineOptions({
 <style>
 #app {
   text-align: center;
-  margin-top: 50px;
+  margin: 0;
+  padding: 0;
 }
 </style>

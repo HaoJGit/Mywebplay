@@ -24,12 +24,11 @@
         <!-- 最新文章 -->
         <div class="featured-articles">
           <h3>最新文章</h3>
-          <div class="articles-grid">
-            <el-card 
+          <div class="articles-list">
+            <div 
               v-for="article in latestArticles" 
               :key="article.id" 
-              class="article-card"
-              shadow="hover"
+              class="article-item"
               @click="goToArticle(article.id)"
             >
               <div class="article-image">
@@ -43,19 +42,18 @@
                   <span class="category">{{ article.category }}</span>
                 </div>
               </div>
-            </el-card>
+            </div>
           </div>
         </div>
 
         <!-- 推荐网站 -->
         <div class="featured-websites">
           <h3>推荐网站</h3>
-          <div class="websites-grid">
-            <el-card 
+          <div class="websites-list">
+            <div 
               v-for="website in featuredWebsites" 
               :key="website.id" 
-              class="website-card"
-              shadow="hover"
+              class="website-item"
             >
               <div class="website-icon">
                 <el-avatar :size="48" :src="website.icon">
@@ -73,7 +71,7 @@
                   访问
                 </el-button>
               </div>
-            </el-card>
+            </div>
           </div>
         </div>
       </div>
@@ -102,8 +100,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useArticlesStore } from '../stores/articles'
+import { useWebsitesStore } from '../stores/websites'
+import { useStatsStore } from '../stores/stats'
 
 // 定义组件名称
 defineOptions({
@@ -111,66 +111,14 @@ defineOptions({
 })
 
 const router = useRouter()
+const articlesStore = useArticlesStore()
+const websitesStore = useWebsitesStore()
+const statsStore = useStatsStore()
 
-// 最新文章数据
-const latestArticles = ref([
-  {
-    id: 1,
-    title: 'Vue.js 3.0 新特性解析',
-    excerpt: '深入探讨 Vue.js 3.0 的 Composition API 和其他新功能...',
-    image: 'https://via.placeholder.com/300x200/409eff/ffffff?text=Vue.js',
-    date: '2024-01-15',
-    category: '前端开发'
-  },
-  {
-    id: 2,
-    title: '现代 CSS 技巧分享',
-    excerpt: '分享一些实用的 CSS 技巧和最佳实践...',
-    image: 'https://via.placeholder.com/300x200/67c23a/ffffff?text=CSS',
-    date: '2024-01-10',
-    category: '前端开发'
-  },
-  {
-    id: 3,
-    title: 'JavaScript 性能优化指南',
-    excerpt: '如何提升 JavaScript 代码的性能和执行效率...',
-    image: 'https://via.placeholder.com/300x200/e6a23c/ffffff?text=JavaScript',
-    date: '2024-01-05',
-    category: '编程技巧'
-  }
-])
-
-// 推荐网站数据
-const featuredWebsites = ref([
-  {
-    id: 1,
-    name: 'GitHub',
-    description: '全球最大的代码托管平台',
-    icon: '',
-    url: 'https://github.com'
-  },
-  {
-    id: 2,
-    name: 'MDN Web Docs',
-    description: 'Web 开发权威文档',
-    icon: '',
-    url: 'https://developer.mozilla.org'
-  },
-  {
-    id: 3,
-    name: 'Stack Overflow',
-    description: '程序员问答社区',
-    icon: '',
-    url: 'https://stackoverflow.com'
-  }
-])
-
-// 统计数据
-const stats = ref({
-  articles: 25,
-  websites: 42,
-  views: 15680
-})
+// 从 store 获取数据
+const { latestArticles } = articlesStore
+const { featuredWebsites } = websitesStore
+const { stats } = statsStore
 
 // 方法
 const goToArticles = () => {
@@ -255,44 +203,66 @@ const visitWebsite = (url) => {
   color: #606266;
 }
 
-.articles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  margin-bottom: 40px;
+.articles-list,
+.websites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.article-card {
-  cursor: pointer;
-  transition: transform 0.3s ease;
+.article-item,
+.website-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
-.article-card:hover {
+.article-item:hover,
+.website-item:hover {
   transform: translateY(-5px);
 }
 
-.article-image img {
+.article-image,
+.website-icon {
+  flex-shrink: 0;
+  width: 100px; /* Fixed width for image/icon */
+  height: 100px; /* Fixed height for image/icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0; /* Placeholder background */
+}
+
+.article-image img,
+.website-icon .el-avatar {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
 }
 
-.article-content {
-  padding: 20px;
+.article-content,
+.website-info {
+  padding: 15px 20px;
+  flex-grow: 1;
 }
 
-.article-content h4 {
-  margin: 0 0 10px 0;
-  font-size: 1.3rem;
+.article-content h4,
+.website-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
   color: #303133;
 }
 
-.article-content p {
+.article-content p,
+.website-info p {
   margin: 0 0 15px 0;
   color: #606266;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .article-meta {
@@ -300,39 +270,6 @@ const visitWebsite = (url) => {
   justify-content: space-between;
   font-size: 0.9rem;
   color: #909399;
-}
-
-.websites-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.website-card {
-  text-align: center;
-  padding: 30px 20px;
-  border-radius: 12px;
-  transition: transform 0.3s ease;
-}
-
-.website-card:hover {
-  transform: translateY(-5px);
-}
-
-.website-icon {
-  margin-bottom: 20px;
-}
-
-.website-info h4 {
-  margin: 0 0 10px 0;
-  font-size: 1.2rem;
-  color: #303133;
-}
-
-.website-info p {
-  margin: 0 0 20px 0;
-  color: #606266;
-  line-height: 1.5;
 }
 
 .stats-section {
@@ -377,9 +314,26 @@ const visitWebsite = (url) => {
     align-items: center;
   }
   
-  .articles-grid,
-  .websites-grid {
-    grid-template-columns: 1fr;
+  .articles-list,
+  .websites-list {
+    gap: 15px;
+  }
+
+  .article-item,
+  .website-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .article-image,
+  .website-icon {
+    width: 100%;
+    height: 150px; /* Adjust height for smaller screens */
+  }
+
+  .article-content,
+  .website-info {
+    padding: 10px 15px;
   }
 }
 </style>

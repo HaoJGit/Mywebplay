@@ -45,17 +45,15 @@
       </div>
 
       <!-- 文章列表 -->
-      <div class="articles-grid">
-        <el-card 
+      <div class="articles-list">
+        <div 
           v-for="article in filteredArticles" 
           :key="article.id" 
-          class="article-card"
-          shadow="hover"
+          class="article-item"
           @click="viewArticle(article.id)"
         >
           <div class="article-image">
             <img :src="article.image" :alt="article.title">
-            <div class="article-category">{{ article.category }}</div>
           </div>
           
           <div class="article-content">
@@ -71,6 +69,10 @@
                 <span class="author">
                   <el-icon><User /></el-icon>
                   {{ article.author }}
+                </span>
+                <span class="category">
+                  <el-icon><Folder /></el-icon>
+                  {{ article.category }}
                 </span>
               </div>
               
@@ -97,7 +99,7 @@
               </el-tag>
             </div>
           </div>
-        </el-card>
+        </div>
       </div>
 
       <!-- 分页 -->
@@ -126,7 +128,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, Calendar, User, View, Star } from '@element-plus/icons-vue'
+import { Search, Calendar, User, View, Star, Folder } from '@element-plus/icons-vue'
+import { useArticlesStore } from '../stores/articles'
 
 // 定义组件名称
 defineOptions({
@@ -134,6 +137,7 @@ defineOptions({
 })
 
 const router = useRouter()
+const articlesStore = useArticlesStore()
 
 // 响应式数据
 const searchKeyword = ref('')
@@ -141,103 +145,12 @@ const selectedCategory = ref('')
 const currentPage = ref(1)
 const pageSize = ref(12)
 
-// 分类数据
-const categories = ref([
-  { id: '1', name: '前端开发' },
-  { id: '2', name: '后端开发' },
-  { id: '3', name: '移动开发' },
-  { id: '4', name: '数据库' },
-  { id: '5', name: '云计算' },
-  { id: '6', name: '人工智能' },
-  { id: '7', name: '编程技巧' },
-  { id: '8', name: '生活随笔' }
-])
+// 从 store 获取基础数据
+const { categories, articles, incrementViews } = articlesStore
 
-// 文章数据
-const articles = ref([
-  {
-    id: 1,
-    title: 'Vue.js 3.0 新特性解析',
-    excerpt: '深入探讨 Vue.js 3.0 的 Composition API 和其他新功能，帮助开发者更好地理解和使用这个强大的前端框架。',
-    image: 'https://via.placeholder.com/400x250/409eff/ffffff?text=Vue.js+3.0',
-    date: '2024-01-15',
-    author: '张三',
-    category: '前端开发',
-    categoryId: '1',
-    views: 1250,
-    likes: 89,
-    tags: ['Vue.js', '前端', 'JavaScript']
-  },
-  {
-    id: 2,
-    title: '现代 CSS 技巧分享',
-    excerpt: '分享一些实用的 CSS 技巧和最佳实践，包括 Grid、Flexbox、动画等现代 CSS 特性的应用。',
-    image: 'https://via.placeholder.com/400x250/67c23a/ffffff?text=CSS+Tricks',
-    date: '2024-01-10',
-    author: '李四',
-    category: '前端开发',
-    categoryId: '1',
-    views: 980,
-    likes: 67,
-    tags: ['CSS', '前端', '设计']
-  },
-  {
-    id: 3,
-    title: 'JavaScript 性能优化指南',
-    excerpt: '如何提升 JavaScript 代码的性能和执行效率，包括代码分割、懒加载、内存管理等技巧。',
-    image: 'https://via.placeholder.com/400x250/e6a23c/ffffff?text=JavaScript+Performance',
-    date: '2024-01-05',
-    author: '王五',
-    category: '编程技巧',
-    categoryId: '7',
-    views: 1560,
-    likes: 112,
-    tags: ['JavaScript', '性能优化', '编程']
-  },
-  {
-    id: 4,
-    title: 'Node.js 微服务架构实践',
-    excerpt: '使用 Node.js 构建微服务架构的实战经验分享，包括服务拆分、通信、部署等关键环节。',
-    image: 'https://via.placeholder.com/400x250/f56c6c/ffffff?text=Node.js+Microservices',
-    date: '2024-01-01',
-    author: '赵六',
-    category: '后端开发',
-    categoryId: '2',
-    views: 890,
-    likes: 45,
-    tags: ['Node.js', '微服务', '后端']
-  },
-  {
-    id: 5,
-    title: 'React Hooks 深度解析',
-    excerpt: '深入理解 React Hooks 的工作原理和使用技巧，帮助开发者更好地管理组件状态和副作用。',
-    image: 'https://via.placeholder.com/400x250/909399/ffffff?text=React+Hooks',
-    date: '2023-12-28',
-    author: '孙七',
-    category: '前端开发',
-    categoryId: '1',
-    views: 1340,
-    likes: 78,
-    tags: ['React', 'Hooks', '前端']
-  },
-  {
-    id: 6,
-    title: 'Docker 容器化部署指南',
-    excerpt: '使用 Docker 进行应用容器化部署的完整指南，包括镜像构建、容器运行、编排等内容。',
-    image: 'https://via.placeholder.com/400x250/409eff/ffffff?text=Docker+Guide',
-    date: '2023-12-25',
-    author: '周八',
-    category: '云计算',
-    categoryId: '5',
-    views: 720,
-    likes: 56,
-    tags: ['Docker', '容器化', '部署']
-  }
-])
-
-// 计算属性
+// 计算属性 - 过滤文章
 const filteredArticles = computed(() => {
-  let result = articles.value
+  let result = articles
   
   // 根据分类过滤
   if (selectedCategory.value) {
@@ -259,6 +172,7 @@ const filteredArticles = computed(() => {
 
 // 方法
 const viewArticle = (articleId) => {
+  incrementViews(articleId)
   router.push(`/articles/${articleId}`)
 }
 
@@ -315,63 +229,58 @@ const handleCurrentChange = (val) => {
   font-size: 0.9rem;
 }
 
-.articles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 30px;
+.articles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 40px;
 }
 
-.article-card {
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  border-radius: 12px;
+.article-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
-.article-card:hover {
+.article-item:hover {
   transform: translateY(-5px);
 }
 
 .article-image {
-  position: relative;
+  width: 150px;
+  height: 100px;
+  overflow: hidden;
 }
 
 .article-image img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
 }
 
-.article-category {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background-color: rgba(64, 158, 255, 0.9);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
 .article-content {
-  padding: 20px;
+  flex-grow: 1;
+  padding: 15px 20px;
 }
 
 .article-title {
-  margin: 0 0 15px 0;
-  font-size: 1.4rem;
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
   color: #303133;
   line-height: 1.4;
 }
 
 .article-excerpt {
-  margin: 0 0 20px 0;
+  margin: 0 0 15px 0;
   color: #606266;
   line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -380,27 +289,27 @@ const handleCurrentChange = (val) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  font-size: 0.9rem;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
   color: #909399;
 }
 
 .meta-left,
 .meta-right {
   display: flex;
-  gap: 15px;
+  gap: 10px;
 }
 
 .meta-left span,
 .meta-right span {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
 }
 
 .article-tags {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -425,7 +334,7 @@ const handleCurrentChange = (val) => {
     width: 100%;
   }
   
-  .articles-grid {
+  .articles-list {
     grid-template-columns: 1fr;
   }
   

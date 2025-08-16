@@ -45,81 +45,78 @@
       </div>
 
       <!-- 网站列表 -->
-      <div class="websites-grid">
-        <el-card 
+      <div class="websites-list">
+        <div 
           v-for="website in filteredWebsites" 
           :key="website.id" 
-          class="website-card"
-          shadow="hover"
+          class="website-item"
         >
-          <div class="website-content">
-            <div class="website-icon">
-              <el-avatar 
-                :src="website.icon" 
-                :size="60" 
-                v-if="website.icon"
+          <div class="website-icon">
+            <el-avatar 
+              :src="website.icon" 
+              :size="50" 
+              v-if="website.icon"
+            >
+              {{ website.name.charAt(0).toUpperCase() }}
+            </el-avatar>
+            <el-avatar 
+              :size="50" 
+              v-else
+              :style="{ backgroundColor: getRandomColor(website.name) }"
+            >
+              {{ website.name.charAt(0).toUpperCase() }}
+            </el-avatar>
+          </div>
+          
+          <div class="website-info">
+            <h3 class="website-name">
+              <a 
+                :href="website.url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                @click.stop
               >
-                {{ website.name.charAt(0).toUpperCase() }}
-              </el-avatar>
-              <el-avatar 
-                :size="60" 
-                v-else
-                :style="{ backgroundColor: getRandomColor(website.name) }"
+                {{ website.name }}
+              </a>
+            </h3>
+            <p class="website-url">
+              <a 
+                :href="website.url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                @click.stop
               >
-                {{ website.name.charAt(0).toUpperCase() }}
-              </el-avatar>
-            </div>
+                {{ website.url }}
+              </a>
+            </p>
+            <p class="website-description">{{ website.description }}</p>
+          </div>
+          
+          <div class="website-actions">
+            <el-tag 
+              class="category-tag" 
+              :type="getCategoryTagType(website.categoryId)"
+            >
+              {{ getCategoryName(website.categoryId) }}
+            </el-tag>
             
-            <div class="website-info">
-              <h3 class="website-name">
-                <a 
-                  :href="website.url" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  @click.stop
-                >
-                  {{ website.name }}
-                </a>
-              </h3>
-              <p class="website-url">
-                <a 
-                  :href="website.url" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  @click.stop
-                >
-                  {{ website.url }}
-                </a>
-              </p>
-              <p class="website-description">{{ website.description }}</p>
-            </div>
-            
-            <div class="website-actions">
-              <el-tag 
-                class="category-tag" 
-                :type="getCategoryTagType(website.categoryId)"
+            <div class="action-buttons">
+              <el-button 
+                type="primary" 
+                size="small" 
+                @click="visitWebsite(website.url)"
               >
-                {{ getCategoryName(website.categoryId) }}
-              </el-tag>
-              
-              <div class="action-buttons">
-                <el-button 
-                  type="primary" 
-                  size="small" 
-                  @click="visitWebsite(website.url)"
-                >
-                  访问
-                </el-button>
-                <el-button 
-                  size="small" 
-                  @click="viewWebsiteDetails(website)"
-                >
-                  详情
-                </el-button>
-              </div>
+                访问
+              </el-button>
+              <el-button 
+                size="small" 
+                @click="viewWebsiteDetails(website)"
+              >
+                详情
+              </el-button>
             </div>
           </div>
-        </el-card>
+        </div>
       </div>
 
       <!-- 分页 -->
@@ -204,11 +201,14 @@
 import { ref, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
+import { useWebsitesStore } from '../stores/websites'
 
 // 定义组件名称
 defineOptions({
   name: 'Websites'
 })
+
+const websitesStore = useWebsitesStore()
 
 // 响应式数据
 const searchKeyword = ref('')
@@ -217,99 +217,8 @@ const currentPage = ref(1)
 const pageSize = ref(12)
 const websiteDialogVisible = ref(false)
 
-// 分类数据
-const categories = ref([
-  { id: '1', name: '开发工具', websiteCount: 8 },
-  { id: '2', name: '设计资源', websiteCount: 5 },
-  { id: '3', name: '学习平台', websiteCount: 6 },
-  { id: '4', name: '娱乐休闲', websiteCount: 3 },
-  { id: '5', name: '新闻资讯', websiteCount: 4 },
-  { id: '6', name: '工具服务', websiteCount: 7 }
-])
-
-// 网站数据
-const websites = ref([
-  {
-    id: '1',
-    name: 'GitHub',
-    url: 'https://github.com',
-    icon: '',
-    description: '全球最大的代码托管平台，支持 Git 版本控制，是开发者协作开发的首选平台。',
-    categoryId: '1'
-  },
-  {
-    id: '2',
-    name: 'Stack Overflow',
-    url: 'https://stackoverflow.com',
-    icon: '',
-    description: '程序员问答社区，汇集了全球开发者的技术问题和解决方案。',
-    categoryId: '1'
-  },
-  {
-    id: '3',
-    name: 'Figma',
-    url: 'https://figma.com',
-    icon: '',
-    description: '在线协作设计工具，支持实时多人协作，是现代设计团队的必备工具。',
-    categoryId: '2'
-  },
-  {
-    id: '4',
-    name: 'MDN Web Docs',
-    url: 'https://developer.mozilla.org',
-    icon: '',
-    description: 'Web 开发权威文档，由 Mozilla 维护，内容详实且持续更新。',
-    categoryId: '1'
-  },
-  {
-    id: '5',
-    name: 'Coursera',
-    url: 'https://coursera.org',
-    icon: '',
-    description: '在线课程学习平台，提供来自顶尖大学和公司的专业课程。',
-    categoryId: '3'
-  },
-  {
-    id: '6',
-    name: 'Dribbble',
-    url: 'https://dribbble.com',
-    icon: '',
-    description: '设计师作品展示平台，汇集了全球优秀设计师的创意作品。',
-    categoryId: '2'
-  },
-  {
-    id: '7',
-    name: 'Dev.to',
-    url: 'https://dev.to',
-    icon: '',
-    description: '开发者社区平台，分享技术文章、讨论和学习资源。',
-    categoryId: '1'
-  },
-  {
-    id: '8',
-    name: 'Unsplash',
-    url: 'https://unsplash.com',
-    icon: '',
-    description: '高质量免费图片资源网站，提供商业用途的免费图片下载。',
-    categoryId: '2'
-  },
-  {
-    id: '9',
-    name: 'Udemy',
-    url: 'https://udemy.com',
-    icon: '',
-    description: '在线学习平台，提供各种技能培训课程，从技术到生活技能应有尽有。',
-    categoryId: '3'
-  },
-  {
-    id: '10',
-    name: 'Canva',
-    url: 'https://canva.com',
-    icon: '',
-    description: '在线设计工具，提供丰富的模板和设计元素，适合非专业设计师使用。',
-    categoryId: '2'
-  }
-])
+// 从 store 获取基础数据
+const { categories, websites, getCategoryName, getCategoryTagType, getRandomColor } = websitesStore
 
 // 表单数据
 const websiteForm = reactive({
@@ -320,9 +229,9 @@ const websiteForm = reactive({
   categoryId: ''
 })
 
-// 计算属性
+// 计算属性 - 过滤网站
 const filteredWebsites = computed(() => {
-  let result = websites.value
+  let result = websites
   
   // 根据分类过滤
   if (selectedCategory.value) {
@@ -343,23 +252,6 @@ const filteredWebsites = computed(() => {
 })
 
 // 方法
-const getCategoryName = (categoryId) => {
-  const category = categories.value.find(c => c.id === categoryId)
-  return category ? category.name : '未分类'
-}
-
-const getCategoryTagType = (categoryId) => {
-  const types = ['primary', 'success', 'warning', 'danger', 'info']
-  const index = categories.value.findIndex(c => c.id === categoryId)
-  return types[index % types.length]
-}
-
-const getRandomColor = (text) => {
-  const colors = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399', '#9c27b0']
-  const index = text.charCodeAt(0) % colors.length
-  return colors[index]
-}
-
 const viewWebsiteDetails = (website) => {
   Object.assign(websiteForm, { ...website })
   websiteDialogVisible.value = true
@@ -433,44 +325,39 @@ const copyToClipboard = (text) => {
   font-size: 0.9rem;
 }
 
-.websites-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 30px;
+.websites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 40px;
 }
 
-.website-card {
+.website-item {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
   border-radius: 12px;
-  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 
-.website-card:hover {
-  transform: translateY(-5px);
-}
-
-.website-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 30px 20px;
+.website-item:hover {
+  transform: translateX(10px);
 }
 
 .website-icon {
-  margin-bottom: 20px;
+  margin-right: 20px;
 }
 
 .website-info {
   flex: 1;
-  margin-bottom: 20px;
-  width: 100%;
+  margin-right: 20px;
 }
 
 .website-name {
-  margin: 0 0 15px 0;
-  font-size: 1.4rem;
+  margin: 0 0 10px 0;
+  font-size: 1.3rem;
   color: #303133;
 }
 
@@ -485,9 +372,10 @@ const copyToClipboard = (text) => {
 }
 
 .website-url {
-  margin: 0 0 15px 0;
-  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-size: 13px;
   word-break: break-all;
+  color: #606266;
 }
 
 .website-url a {
@@ -503,26 +391,28 @@ const copyToClipboard = (text) => {
 
 .website-description {
   margin: 0;
-  font-size: 14px;
-  color: #606266;
-  line-height: 1.6;
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .website-actions {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
 }
 
 .category-tag {
-  margin-bottom: 20px;
+  font-size: 0.9rem;
 }
 
 .action-buttons {
   display: flex;
-  justify-content: center;
   gap: 10px;
 }
 
@@ -549,16 +439,45 @@ const copyToClipboard = (text) => {
     width: 100%;
   }
   
-  .websites-grid {
-    grid-template-columns: 1fr;
+  .websites-list {
+    gap: 15px;
   }
   
+  .website-item {
+    padding: 15px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .website-icon {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .website-info {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .website-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+
   .page-header h1 {
     font-size: 2rem;
   }
   
-  .website-content {
-    padding: 20px 15px;
+  .website-name {
+    font-size: 1.2rem;
+  }
+  
+  .website-url {
+    font-size: 12px;
+  }
+  
+  .website-description {
+    font-size: 12px;
   }
 }
 </style>

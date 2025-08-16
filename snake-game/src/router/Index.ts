@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import BlogHome from '../components/BlogHome.vue'
 import Articles from '../components/Articles.vue'
+import ArticleDetail from '../components/ArticleDetail.vue'
 import Websites from '../components/Websites.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -18,6 +19,14 @@ const routes: Array<RouteRecordRaw> = [
     component: Articles,
     meta: {
       title: '文章列表'
+    }
+  },
+  {
+    path: '/articles/:id',
+    name: 'ArticleDetail',
+    component: ArticleDetail,
+    meta: {
+      title: '文章详情'
     }
   },
   {
